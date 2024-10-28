@@ -22,51 +22,100 @@
   
 ## PROGRAM: 
 ```
-# Python for RSA asymmetric cryptographic algorithm.
+#include <stdio.h>
+#include <math.h>
 
-import math
+// Function to calculate gcd
+int gcd(int a, int b) {
+    while (b != 0) {
+        int temp = b;
+        b = a % b;
+        a = temp;
+    }
+    return a;
+}
 
-def gcd(a, h):
-	temp = 0
-	while(1):
-		temp = a % h
-		if (temp == 0):
-			return h
-		a = h
-		h = temp
+// Function to find modular inverse of e under modulo φ(n)
+int modInverse(int e, int phi) {
+    int d = 1;
+    while ((d * e) % phi != 1) {
+        d++;
+    }
+    return d;
+}
 
-p = 3
-q = 7
-n = p*q
-e = 2
-phi = (p-1)*(q-1)
+// Function to perform modular exponentiation
+long long modExp(long long base, long long exp, long long mod) {
+    long long result = 1;
+    base = base % mod;
+    while (exp > 0) {
+        if (exp % 2 == 1) {
+            result = (result * base) % mod;
+        }
+        exp = exp >> 1;
+        base = (base * base) % mod;
+    }
+    return result;
+}
 
-while (e < phi):
-	if(gcd(e, phi) == 1):
-		break
-	else:
-		e = e+1
-k = 2
-d = (1 + (k*phi))/e
+int main() {
+    // Message to be encrypted (plaintext in integer form)
+    char plaintext[] = "LOKESH";
+    long long encrypted[128];
+    char decrypted[128];
 
-# Message to be encrypted
-msg = 12.0
+    // Small primes p and q (normally these would be large primes)
+    int p = 61;
+    int q = 53;
 
-print("Message data = ", msg)
+    // Calculate n and φ(n)
+    long long n = p * q;
+    long long phi = (p - 1) * (q - 1);
 
-# Encryption c = (msg ^ e) % n
-c = pow(msg, e)
-c = math.fmod(c, n)
-print("Encrypted data = ", c)
+    // Choose e such that 1 < e < φ(n) and gcd(e, φ(n)) = 1
+    int e = 17;
+    while (gcd(e, phi) != 1) {
+        e++;
+    }
 
-# Decryption m = (c ^ d) % n
-m = pow(c, d)
-m = math.fmod(m, n)
-print("Original Message Sent = ", m)
+    // Calculate d (modular inverse of e mod φ(n))
+    int d = modInverse(e, phi);
+
+    printf("Public Key: (%d, %lld)\n", e, n);
+    printf("Private Key: (%d, %lld)\n", d, n);
+
+    // Encrypt the plaintext
+    int i;
+    for (i = 0; plaintext[i] != '\0'; i++) {
+        encrypted[i] = modExp(plaintext[i], e, n);
+    }
+    encrypted[i] = -1; // End of encrypted array
+
+    // Print encrypted message
+    printf("Encrypted text: ");
+    for (i = 0; encrypted[i] != -1; i++) {
+        printf("%lld ", encrypted[i]);
+    }
+    printf("\n");
+
+    // Decrypt the ciphertext
+    for (i = 0; encrypted[i] != -1; i++) {
+        decrypted[i] = modExp(encrypted[i], d, n);
+    }
+    decrypted[i] = '\0'; // Null-terminate the string
+
+    printf("Decrypted text: %s\n", decrypted);
+
+    return 0;
+}
+
 ```
 
 ## OUTPUT:
-![Screenshot 2024-10-16 101754](https://github.com/user-attachments/assets/18eb6326-31ad-4c1c-b4c5-91c7716e6e9b)
+
+![image](https://github.com/user-attachments/assets/c7641bbe-8be9-4173-9af1-aa84982f880e)
+
+
 
 
 ## RESULT:
